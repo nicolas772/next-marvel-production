@@ -1,70 +1,14 @@
 <?php 
 
-const API_URL = 'https://www.whenisthenextmcufilm.com/api';
-$ch = curl_init(API_URL);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+require_once 'const.php';
+require_once 'functions.php';
+require_once 'classes/NextMovie.php';
 
-// Ejecutar la petición
-
-$result = curl_exec($ch);
-$data = json_decode($result, true);
-
-curl_close($ch);
+$next_movie = NextMovie::fetch_and_create_movie(API_URL);
+$next_movie_data = $next_movie->get_data();
 
 ?>
 
-<head>
-  <meta charset="UTF-8"/>
-  <title>La próxima película de Marvel</title>
-  <meta name="description" content="La próxima película de Marvel">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css"
-  >
-</head>
-<main>
-  <section>
-    <img 
-      src="<?= $data["poster_url"]; ?>" 
-      width="300" 
-      alt="Poster de <?= $data["title"]; ?>"
-      style="border-radius: 16px;"
-      
-    ?>
-  </section>
-  <hgroup>
-    <h3><?= $data["title"];?> se estrena en <?= $data["days_until"]; ?> días.</h3>
-    <p>Fecha de estreno: <?= $data["release_date"]; ?></p>
-    <p>La siguiente producción de Marvel es: <?= $data["following_production"]["title"]; ?></p>
-  </hgroup>
-</main>
-
-<style>
-  :root {
-    color-scheme: light dark;
-  }
-
-  body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    display: grid;
-    place-content: center;
-  }
-
-  section {
-    display: flex;
-    justify-content: center;
-    text-align: center;
-  }
-
-  hgroup {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-  }
-
-  img {
-    margin: 0 auto;
-  }
-</style>
+<?php render_template('head', $next_movie_data); ?>
+<?php render_template('main', array_merge($next_movie_data, ["until_message" => $next_movie->get_until_message()])); ?>
+<?php render_template('styles'); ?>
